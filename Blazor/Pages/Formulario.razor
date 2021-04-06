@@ -1,0 +1,127 @@
+﻿@page "/formulario"
+@using System.Net.Mail;
+
+<h3>Formulario</h3>
+
+<table>
+    <tr>
+        <th>Cedula: </th>
+        <td><input type="text" class="" @bind="persona.Cedula" placeholder="Cedula..." /></td>
+    </tr>
+    <tr>
+        <th>Nombre: </th>
+        <td><input type="text" class="" @bind="persona.Nombre" placeholder="Nombre..." /></td>
+    </tr>
+    <tr>
+        <th>Apellido: </th>
+        <td><input type="text" class="" @bind="persona.Apellido" placeholder="Apellido..." /></td>
+    </tr>
+    <tr>
+        <th>Teléfono: </th>
+        <td><input type="" class="" @bind="persona.Telefono" placeholder="Teléfono..." /></td>
+    </tr>
+    <tr>
+        <th>Correo: </th>
+        <td><input type="email" class="" @bind="persona.Correo" placeholder="Correo Electrónico..." /></td>
+    </tr>
+    <tr>
+        <th>Fecha Nacimiento: </th>
+        <td><input type="date" class="" @bind="fecha" placeholder="Fecha de Nacimiento..." /></td>
+    </tr>
+    <tr>
+        <th>Tipo Sangre: </th>
+        <td><input type="text" class="" @bind="persona.Sangre" placeholder="Tipo de Sangre..." /></td>
+    </tr>
+    <tr>
+        <th>Provincia: </th>
+        <td><input type="text" class="" @bind="persona.Provincia" placeholder="Provincia..." /></td>
+    </tr>
+    <tr>
+        <th>Dirección: </th>
+        <td><input type="text" class="" @bind="persona.Direccion" placeholder="Dirección..." /></td>
+    </tr>
+    <tr>
+        <th>Latitud: </th>
+        <td><input type="number" class="" @bind="persona.Latitud" placeholder="Latitud..." /></td>
+    </tr>
+    <tr>
+        <th>Longitud: </th>
+        <td><input type="number" class="" @bind="persona.Longitud" placeholder="Longitud..." /></td>
+    </tr>
+    <tr>
+        <th>Covid: </th>
+        <td><input type="text" class="" @bind="persona.Covid" placeholder="Indique si le ha dado covid..." /></td>
+    </tr>
+    <tr>
+        <th>Justificación: </th>
+        <td><input type="text" class="" @bind="persona.Justificacion" placeholder="Justifique..." /></td>
+    </tr>
+    <tr>
+        <button type="button" class="btn btn-success" @onclick="Insercion">Enviar</button>
+    </tr>
+    <span style="font-weight:bold;font-size:28px;color:#c00;">@Mensaje</span>
+</table>
+
+<footer>
+    <a href="acercade">Acerca de</a>
+</footer>
+
+@code {
+
+    DateTime fecha = new DateTime();
+
+    CPersona persona = new CPersona();
+    CPersona_BD persona_bd = new CPersona_BD();
+
+    private string Mensaje { get; set; } = "";
+
+    private void EnviarCorreo(string correo_para)
+    {
+        try
+        {
+            using (MailMessage correo = new MailMessage())
+            {
+                correo.From = new MailAddress("abelrodrqz@gmail.com");
+                correo.To.Add(correo_para);
+                correo.Subject = "VACUNAS RD - #VACUNATE";
+                correo.Body = "<h1>VACUNAS</h1><p>Nos complace informarle que usted está aceptado para ser vacunado.</p>";
+                correo.IsBodyHtml = true;
+
+                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("abelrodrqz@gmail.com", "abel06032001");
+                    smtp.EnableSsl = true;
+                    smtp.Send(correo);
+                    Mensaje = "Enviado";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Mensaje = ex.Message;
+        }
+    }
+
+    private void Insercion()
+    {
+        persona.Fecha = fecha.ToString("yyyyMMdd");
+        persona_bd.Insertar(persona.Cedula, persona.Nombre, persona.Apellido, persona.Telefono, persona.Correo, persona.Fecha, persona.Sangre, persona.Provincia, persona.Direccion, persona.Latitud, persona.Longitud, persona.Covid, persona.Justificacion);
+        EnviarCorreo(persona.Correo);
+        persona.Cedula = "";
+        persona.Nombre = "";
+        persona.Apellido = "";
+        persona.Telefono = "";
+        persona.Correo = "";
+        persona.Fecha = "";
+        persona.Sangre = "";
+        persona.Provincia = "";
+        persona.Direccion = "";
+        persona.Latitud = "";
+        persona.Longitud = "";
+        persona.Covid = "";
+        persona.Justificacion = "";
+    }
+
+
+}
